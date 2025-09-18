@@ -2,8 +2,8 @@
 import asyncio
 import re
 from pathlib import Path
-from playwright.async_api import async_playwright, TimeoutError as PWTimeout
 from typing import Optional, Dict, Any
+from playwright.async_api import async_playwright, TimeoutError as PWTimeout
 
 # ---- config defaults ----
 WAIT_SECONDS = 12   # time to wait for JS/XHR
@@ -33,7 +33,15 @@ async def run(url: str, wait_seconds: int = WAIT_SECONDS, headful: bool = HEADFU
     try:
         async with async_playwright() as p:
             browser = await p.chromium.launch(
-                headless=not headful, args=["--no-sandbox", "--disable-dev-shm-usage"]
+                headless=not headful,
+                args=[
+                    "--no-sandbox",
+                    "--disable-dev-shm-usage",
+                    "--disable-gpu",
+                    "--single-process",       # helps prevent pthread_create errors
+                    "--disable-extensions",
+                    "--disable-setuid-sandbox"
+                ]
             )
             context = await browser.new_context()
             page = await context.new_page()
@@ -127,4 +135,7 @@ async def run(url: str, wait_seconds: int = WAIT_SECONDS, headful: bool = HEADFU
 
     finally:
         if browser:
-            await browser.close()
+            try:
+                await browser.close()
+            except:
+                pass
