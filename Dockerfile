@@ -7,7 +7,7 @@ RUN apt-get update && apt-get install -y \
     libnss3 libatk1.0-0 libatk-bridge2.0-0 libcups2 libdrm2 \
     libxkbcommon0 libxcomposite1 libxdamage1 libxrandr2 libgbm1 \
     libasound2 libpangocairo-1.0-0 libpango-1.0-0 libgtk-3-0 \
-    libx11-xcb1 libxcb-dri3-0 libxss1 libxshmfence1 \
+    libx11-xcb1 libxcb-dri3-0 libxss1 libxshmfence1 fonts-liberation \
  && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
@@ -22,6 +22,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Install Playwright browsers
 RUN python -m playwright install chromium
+
+# Increase /dev/shm size (used by Chromium)
+VOLUME ["/dev/shm"]
 
 # Expose the port your FastAPI app will run on
 EXPOSE 8000
